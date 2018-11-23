@@ -21,45 +21,31 @@
 )]
 #![cfg_attr(
     all(target_os = "linux", target_arch = "x86_64"),
-    doc(
-        html_root_url = "https://rust-lang.github.io/libc/x86_64-unknown-linux-gnu"
-    )
+    doc(html_root_url = "https://rust-lang.github.io/libc/x86_64-unknown-linux-gnu")
 )]
 #![cfg_attr(
     all(target_os = "linux", target_arch = "x86"),
-    doc(
-        html_root_url = "https://rust-lang.github.io/libc/i686-unknown-linux-gnu"
-    )
+    doc(html_root_url = "https://rust-lang.github.io/libc/i686-unknown-linux-gnu")
 )]
 #![cfg_attr(
     all(target_os = "linux", target_arch = "arm"),
-    doc(
-        html_root_url = "https://rust-lang.github.io/libc/arm-unknown-linux-gnueabihf"
-    )
+    doc(html_root_url = "https://rust-lang.github.io/libc/arm-unknown-linux-gnueabihf")
 )]
 #![cfg_attr(
     all(target_os = "linux", target_arch = "mips"),
-    doc(
-        html_root_url = "https://rust-lang.github.io/libc/mips-unknown-linux-gnu"
-    )
+    doc(html_root_url = "https://rust-lang.github.io/libc/mips-unknown-linux-gnu")
 )]
 #![cfg_attr(
     all(target_os = "linux", target_arch = "aarch64"),
-    doc(
-        html_root_url = "https://rust-lang.github.io/libc/aarch64-unknown-linux-gnu"
-    )
+    doc(html_root_url = "https://rust-lang.github.io/libc/aarch64-unknown-linux-gnu")
 )]
 #![cfg_attr(
     all(target_os = "linux", target_env = "musl"),
-    doc(
-        html_root_url = "https://rust-lang.github.io/libc/x86_64-unknown-linux-musl"
-    )
+    doc(html_root_url = "https://rust-lang.github.io/libc/x86_64-unknown-linux-musl")
 )]
 #![cfg_attr(
     all(target_os = "macos", target_arch = "x86_64"),
-    doc(
-        html_root_url = "https://rust-lang.github.io/libc/x86_64-apple-darwin"
-    )
+    doc(html_root_url = "https://rust-lang.github.io/libc/x86_64-apple-darwin")
 )]
 #![cfg_attr(
     all(target_os = "macos", target_arch = "x86"),
@@ -67,87 +53,59 @@
 )]
 #![cfg_attr(
     all(windows, target_arch = "x86_64", target_env = "gnu"),
-    doc(
-        html_root_url = "https://rust-lang.github.io/libc/x86_64-pc-windows-gnu"
-    )
+    doc(html_root_url = "https://rust-lang.github.io/libc/x86_64-pc-windows-gnu")
 )]
 #![cfg_attr(
     all(windows, target_arch = "x86", target_env = "gnu"),
-    doc(
-        html_root_url = "https://rust-lang.github.io/libc/i686-pc-windows-gnu"
-    )
+    doc(html_root_url = "https://rust-lang.github.io/libc/i686-pc-windows-gnu")
 )]
 #![cfg_attr(
     all(windows, target_arch = "x86_64", target_env = "msvc"),
-    doc(
-        html_root_url = "https://rust-lang.github.io/libc/x86_64-pc-windows-msvc"
-    )
+    doc(html_root_url = "https://rust-lang.github.io/libc/x86_64-pc-windows-msvc")
 )]
 #![cfg_attr(
     all(windows, target_arch = "x86", target_env = "msvc"),
-    doc(
-        html_root_url = "https://rust-lang.github.io/libc/i686-pc-windows-msvc"
-    )
+    doc(html_root_url = "https://rust-lang.github.io/libc/i686-pc-windows-msvc")
 )]
 #![cfg_attr(
     target_os = "android",
-    doc(
-        html_root_url = "https://rust-lang.github.io/libc/arm-linux-androideabi"
-    )
+    doc(html_root_url = "https://rust-lang.github.io/libc/arm-linux-androideabi")
 )]
 #![cfg_attr(
     target_os = "freebsd",
-    doc(
-        html_root_url = "https://rust-lang.github.io/libc/x86_64-unknown-freebsd"
-    )
+    doc(html_root_url = "https://rust-lang.github.io/libc/x86_64-unknown-freebsd")
 )]
 #![cfg_attr(
     target_os = "openbsd",
-    doc(
-        html_root_url = "https://rust-lang.github.io/libc/x86_64-unknown-openbsd"
-    )
+    doc(html_root_url = "https://rust-lang.github.io/libc/x86_64-unknown-openbsd")
 )]
 #![cfg_attr(
     target_os = "bitrig",
-    doc(
-        html_root_url = "https://rust-lang.github.io/libc/x86_64-unknown-bitrig"
-    )
+    doc(html_root_url = "https://rust-lang.github.io/libc/x86_64-unknown-bitrig")
 )]
 #![cfg_attr(
     target_os = "netbsd",
-    doc(
-        html_root_url = "https://rust-lang.github.io/libc/x86_64-unknown-netbsd"
-    )
+    doc(html_root_url = "https://rust-lang.github.io/libc/x86_64-unknown-netbsd")
 )]
 #![cfg_attr(
     target_os = "dragonfly",
-    doc(
-        html_root_url = "https://rust-lang.github.io/libc/x86_64-unknown-dragonfly"
-    )
+    doc(html_root_url = "https://rust-lang.github.io/libc/x86_64-unknown-dragonfly")
 )]
 #![cfg_attr(
     target_os = "solaris",
-    doc(
-        html_root_url = "https://rust-lang.github.io/libc/x86_64-sun-solaris"
-    )
+    doc(html_root_url = "https://rust-lang.github.io/libc/x86_64-sun-solaris")
 )]
 #![cfg_attr(
     all(target_os = "emscripten", target_arch = "asmjs"),
-    doc(
-        html_root_url = "https://rust-lang.github.io/libc/asmjs-unknown-emscripten"
-    )
+    doc(html_root_url = "https://rust-lang.github.io/libc/asmjs-unknown-emscripten")
 )]
 #![cfg_attr(
     all(target_os = "emscripten", target_arch = "wasm32"),
-    doc(
-        html_root_url = "https://rust-lang.github.io/libc/wasm32-unknown-emscripten"
-    )
+    doc(html_root_url = "https://rust-lang.github.io/libc/wasm32-unknown-emscripten")
 )]
 #![cfg_attr(
     all(target_os = "linux", target_arch = "sparc64"),
-    doc(
-        html_root_url = "https://rust-lang.github.io/libc/sparc64-unknown-linux-gnu"
-    )
+    doc(html_root_url = "https://rust-lang.github.io/libc/sparc64-unknown-linux-gnu")
 )]
 // Attributes needed when building as part of the standard library
 #![cfg_attr(feature = "rustc-dep-of-std", feature(cfg_target_vendor))]

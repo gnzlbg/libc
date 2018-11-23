@@ -4,66 +4,16 @@ extern crate ctest;
 
 use std::env;
 
-bool is_unix(target: &str) {
-    const UNIX_TARGETS = &[
-        
-    ];
-
-    UNIX_TARGETS.iter().any(|t| target.contains(t))
-}
-
 fn main() {
     let target = env::var("TARGET").expect("The TARGET environment variable must be set");
 
     // This mirrors libc module structure:
     let windows = target.contains("windows");
-    
-    let unix = 
+    let unix = is_unix(target);
 
-    let aarch64 = target.contains("aarch64");
-    let i686 = target.contains("i686");
-    let x86_64 = target.contains("x86_64");
-    let x32 = target.ends_with("gnux32");
-    
-    let mingw = target.contains("windows-gnu");
-    let linux = target.contains("unknown-linux");
-    let android = target.contains("android");
-    let apple = target.contains("apple");
-    let ios = target.contains("apple-ios");
-    let emscripten = target.contains("asm");
-    let musl = target.contains("musl") || emscripten;
-    let uclibc = target.contains("uclibc");
-    let freebsd = target.contains("freebsd");
-    let dragonfly = target.contains("dragonfly");
-    let mips = target.contains("mips");
-    let netbsd = target.contains("netbsd");
-    let openbsd = target.contains("openbsd");
-    let rumprun = target.contains("rumprun");
-    let solaris = target.contains("solaris");
-    let bsdlike = freebsd || apple || netbsd || openbsd || dragonfly;
     let mut cfg = ctest::TestGenerator::new();
 
-    // Pull in extra goodies
-    if linux || android || emscripten {
-        cfg.define("_GNU_SOURCE", None);
-    } else if netbsd {
-        cfg.define("_NETBSD_SOURCE", Some("1"));
-    } else if apple {
-        cfg.define("__APPLE_USE_RFC_3542", None);
-    } else if windows {
-        cfg.define("_WIN32_WINNT", Some("0x8000"));
-    } else if solaris {
-        cfg.define("_XOPEN_SOURCE", Some("700"));
-        cfg.define("__EXTENSIONS__", None);
-        cfg.define("_LCONV_C99", None);
-    }
-
-    // Android doesn't actually have in_port_t but it's much easier if we
-    // provide one for us to test against
-    if android {
-        cfg.define("in_port_t", Some("uint16_t"));
-    }
-
+    // libc headers:
     cfg.header("errno.h")
         .header("fcntl.h")
         .header("limits.h")
@@ -78,147 +28,15 @@ fn main() {
         .header("wchar.h");
 
     if windows {
-        cfg.header("winsock2.h"); // must be before windows.h
-
-        cfg.header("direct.h");
-        cfg.header("io.h");
-        cfg.header("sys/utime.h");
-        cfg.header("windows.h");
-        cfg.header("process.h");
-        cfg.header("ws2ipdef.h");
-
-        if target.contains("gnu") {
-            cfg.header("ws2tcpip.h");
-        }
-    } else {
-        cfg.flag("-Wno-deprecated-declarations");
-
-        cfg.header("ctype.h");
-        cfg.header("dirent.h");
-        if openbsd {
-            cfg.header("sys/socket.h");
-        }
-        cfg.header("net/if.h");
-        if !ios {
-            cfg.header("net/route.h");
-            cfg.header("net/if_arp.h");
-        }
-        cfg.header("netdb.h");
-        cfg.header("netinet/in.h");
-        cfg.header("netinet/ip.h");
-        cfg.header("netinet/tcp.h");
-        cfg.header("netinet/udp.h");
-        cfg.header("resolv.h");
-        cfg.header("pthread.h");
-        cfg.header("dlfcn.h");
-        cfg.header("signal.h");
-        cfg.header("string.h");
-        cfg.header("sys/file.h");
-        cfg.header("sys/ioctl.h");
-        cfg.header("sys/mman.h");
-        cfg.header("sys/resource.h");
-        cfg.header("sys/socket.h");
-        if linux && !musl {
-            cfg.header("linux/if.h");
-            cfg.header("sys/auxv.h");
-        }
-        cfg.header("sys/time.h");
-        cfg.header("sys/un.h");
-        cfg.header("sys/wait.h");
-        cfg.header("unistd.h");
-        cfg.header("utime.h");
-        cfg.header("pwd.h");
-        cfg.header("grp.h");
-        cfg.header("sys/utsname.h");
-        if !solaris && !ios {
-            cfg.header("sys/ptrace.h");
-        }
-        cfg.header("sys/mount.h");
-        cfg.header("sys/uio.h");
-        cfg.header("sched.h");
-        cfg.header("termios.h");
-        cfg.header("poll.h");
-        cfg.header("syslog.h");
-        cfg.header("semaphore.h");
-        cfg.header("sys/statvfs.h");
-        cfg.header("sys/times.h");
+        windows_cfg(&mut cfg, target);
+    } else if unix {
+        unix_cfg(&mut cfg, target);
     }
 
-    if android {
-        if !aarch64 && !x86_64 {
-            // time64_t is not define for aarch64 and x86_64
-            // If included it will generate the error 'Your time_t is already 64-bit'
-            cfg.header("time64.h");
-        }
-        cfg.header("arpa/inet.h");
-        cfg.header("xlocale.h");
-        cfg.header("utmp.h");
-        cfg.header("ifaddrs.h");
-        if i686 || x86_64 {
-            cfg.header("sys/reg.h");
-        }
-    } else if !windows {
-        cfg.header("glob.h");
-        cfg.header("ifaddrs.h");
-        cfg.header("langinfo.h");
-
-        if !openbsd && !freebsd && !dragonfly && !solaris {
-            cfg.header("sys/quota.h");
-        }
-
-        if !musl && !x32 && !solaris {
-            cfg.header("sys/sysctl.h");
-        }
-
-        if !musl && !uclibc {
-            if !netbsd && !openbsd && !uclibc {
-                cfg.header("execinfo.h");
-            }
-
-            if openbsd {
-                cfg.header("utmp.h");
-            } else {
-                cfg.header("utmpx.h");
-            }
-        }
-    }
-
-    if apple {
-        cfg.header("spawn.h");
-        cfg.header("mach-o/dyld.h");
-        cfg.header("mach/mach_time.h");
-        cfg.header("malloc/malloc.h");
-        cfg.header("util.h");
-        cfg.header("xlocale.h");
-        cfg.header("sys/xattr.h");
-        if target.starts_with("x86") && !ios {
-            cfg.header("crt_externs.h");
-        }
-        cfg.header("netinet/in.h");
-        cfg.header("sys/ipc.h");
-        cfg.header("sys/shm.h");
-
-        if !ios {
-            cfg.header("sys/sys_domain.h");
-            cfg.header("net/if_utun.h");
-            cfg.header("net/bpf.h");
-            cfg.header("net/route.h");
-            cfg.header("netinet/if_ether.h");
-            cfg.header("sys/proc_info.h");
-            cfg.header("sys/kern_control.h");
-        }
-    }
-
-    if bsdlike {
-        cfg.header("sys/event.h");
-        cfg.header("net/if_dl.h");
-        if freebsd {
-            cfg.header("net/bpf.h");
-            cfg.header("libutil.h");
-        } else {
-            cfg.header("util.h");
-        }
-    }
+    let aarch64 = target.contains("aarch64");
+    let i686 = target.contains("i686");
+    let x86_64 = target.contains("x86_64");
+    let x32 = target.ends_with("gnux32");
 
     if linux || emscripten {
         cfg.header("mntent.h");
@@ -962,4 +780,261 @@ fn main() {
         cfg.skip_struct(|_| true);
     }
     cfg.generate("../src/lib.rs", "linux_fcntl.rs");
+}
+
+bool is_unix(target: &str) {
+    const UNIX_TARGETS = &[
+        "linux", "android", "emscripten", "fuchsia",
+        "netbsd", "openbsd", "freebsd", "dragonfly",
+        "apple", "bitrig", "solaris", "l4re",
+        "haiku", "fuchsia", "hermit", "asm"
+    ];
+
+    UNIX_TARGETS.iter().any(|t| target.contains(t))
+}
+
+bool is_bsdlike(target: &str) {
+    const BSDLIKE_TARGETS = &[
+        "apple", "freebsd", "dragonfly", "netbsd", "openbsd"
+    ];
+    BSDLIKE_TARGETS.iter().any(|t| target.contains(t))
+}
+
+bool is_notbsdlike(target: &str) {
+    const NOTBSDLIKE_TARGETS = &[
+        "linux", "emscripten", "android", "fuchsia"
+    ];
+    NOTBSDLIKE_TARGETS.iter().any(|t| target.contains(t))
+}
+
+
+fn windows_cfg(cfg: &mut TestGenerator, target: &str) {
+    assert!(target.contains("windows"));
+    let mingw = target.contains("gnu");
+
+    cfg.define("_WIN32_WINNT", Some("0x8000"));
+
+    cfg.header("winsock2.h"); // must be before windows.h
+
+    cfg.header("direct.h");
+    cfg.header("io.h");
+    cfg.header("sys/utime.h");
+    cfg.header("windows.h");
+    cfg.header("process.h");
+    cfg.header("ws2ipdef.h");
+
+    if mingw {
+        cfg.header("ws2tcpip.h");
+    }
+}
+
+fn unix_cfg(cfg: &mut TestGenerator, target: &str) {
+    assert!(is_unix(target));
+    let linux = target.contains("unknown-linux");
+    let android = target.contains("android");
+    let apple = target.contains("apple");
+    let ios = target.contains("apple-ios");
+    let emscripten = target.contains("asm");
+    let musl = target.contains("musl") || emscripten;
+    let uclibc = target.contains("uclibc");
+    let freebsd = target.contains("freebsd");
+    let dragonfly = target.contains("dragonfly");
+    let mips = target.contains("mips");
+    let netbsd = target.contains("netbsd");
+    let openbsd = target.contains("openbsd");
+    let rumprun = target.contains("rumprun");
+    let solaris = target.contains("solaris");
+
+
+    // FIXME: remove ?
+    cfg.flag("-Wno-deprecated-declarations");
+
+    // Pull in extra goodies
+    if linux || emscripten {
+        cfg.define("_GNU_SOURCE", None);
+    } else if netbsd {
+        cfg.define("_NETBSD_SOURCE", Some("1"));
+    } else if apple {
+        cfg.define("__APPLE_USE_RFC_3542", None);
+    } else if solaris {
+        cfg.define("_XOPEN_SOURCE", Some("700"));
+        cfg.define("__EXTENSIONS__", None);
+        cfg.define("_LCONV_C99", None);
+    }
+
+    cfg.header("ctype.h");
+    cfg.header("dirent.h");
+    cfg.header("net/if.h");
+    cfg.header("netdb.h");
+    cfg.header("netinet/in.h");
+    cfg.header("netinet/ip.h");
+    cfg.header("netinet/tcp.h");
+    cfg.header("netinet/udp.h");
+    cfg.header("resolv.h");
+    cfg.header("pthread.h");
+    cfg.header("dlfcn.h");
+    cfg.header("signal.h");
+    cfg.header("string.h");
+    cfg.header("sys/file.h");
+    cfg.header("sys/ioctl.h");
+    cfg.header("sys/mman.h");
+    cfg.header("sys/resource.h");
+    cfg.header("sys/socket.h");
+    cfg.header("sys/time.h");
+    cfg.header("sys/un.h");
+    cfg.header("sys/wait.h");
+    cfg.header("unistd.h");
+    cfg.header("utime.h");
+    cfg.header("pwd.h");
+    cfg.header("grp.h");
+    cfg.header("sys/utsname.h");
+    cfg.header("sys/mount.h");
+    cfg.header("sys/uio.h");
+    cfg.header("sched.h");
+    cfg.header("termios.h");
+    cfg.header("poll.h");
+    cfg.header("syslog.h");
+    cfg.header("semaphore.h");
+    cfg.header("sys/statvfs.h");
+    cfg.header("sys/times.h");
+
+    cfg.header("glob.h");
+    cfg.header("ifaddrs.h");
+    cfg.header("langinfo.h");
+
+    if !openbsd && !freebsd && !dragonfly && !solaris {
+        cfg.header("sys/quota.h");
+    }
+
+    if !musl && !x32 && !solaris {
+        cfg.header("sys/sysctl.h");
+    }
+
+    if !musl && !uclibc {
+        if !netbsd && !openbsd && !uclibc {
+            cfg.header("execinfo.h");
+        }
+
+        if openbsd {
+            cfg.header("utmp.h");
+        } else {
+            cfg.header("utmpx.h");
+        }
+    }
+
+    if android {
+        cfg_android(&mut cfg, target)
+    }
+    if bsdlike(target) {
+        cfg_bsdlike(&mut cfg, target)
+    }
+
+    if openbsd {
+        cfg.header("sys/socket.h");
+    }
+    
+    if !ios {
+        cfg.header("net/route.h");
+        cfg.header("net/if_arp.h");
+    }
+    if linux && !musl {
+        cfg.header("linux/if.h");
+        cfg.header("sys/auxv.h");
+    }
+    if !solaris && !ios {
+        cfg.header("sys/ptrace.h");
+    }
+
+}
+
+fn is_notbsdlike(target: &str) {
+    
+}
+
+fn notbsdlike_cfg(cfg: &mut TestGenerator, target: &str) {
+    let linux = target.contains("unknown-linux");
+    let android = target.contains("android");
+    let emscripten = target.contains("asm");
+}
+
+fn android_cfg(cfg: &mut TestGenerator, target: &str) {
+    assert!(target.contains("android"));
+    let aarch64 = target.contains("aarch64");
+    let i686 = target.contains("i686");
+    let x86_64 = target.contains("x86_64");
+
+    cfg.define("_GNU_SOURCE", None);
+
+    // Android doesn't actually have in_port_t but it's much easier if we
+    // provide one for us to test against
+    cfg.define("in_port_t", Some("uint16_t"));
+
+    cfg.header("arpa/inet.h");
+    cfg.header("xlocale.h");
+    cfg.header("utmp.h");
+    cfg.header("ifaddrs.h");
+
+    if !aarch64 && !x86_64 {
+        // time64_t is not define for aarch64 and x86_64 If included it will
+        // generate the error 'Your time_t is already 64-bit'
+        cfg.header("time64.h");
+    }
+    if i686 || x86_64 {
+        cfg.header("sys/reg.h");
+    }
+}
+
+fn bsdlike_cfg(cfg: &mut TestGenerator, target: &str) {
+    assert!(is_bsdlike(target));
+
+    let apple = target.contains("apple");
+    let ios = target.contains("apple-ios");
+    let musl = target.contains("musl") || emscripten;
+    let uclibc = target.contains("uclibc");
+    let freebsd = target.contains("freebsd");
+    let dragonfly = target.contains("dragonfly");
+    let netbsd = target.contains("netbsd");
+    let openbsd = target.contains("openbsd");
+    let bsdlike = freebsd || apple || netbsd || openbsd || dragonfly;
+
+    cfg.header("sys/event.h");
+    cfg.header("net/if_dl.h");
+
+    if freebsd {
+        cfg.header("net/bpf.h");
+        cfg.header("libutil.h");
+    } else {
+        cfg.header("util.h");
+    }
+}
+
+fn apple_cfg(cfg: &mut TestGenerator, target: &str) {
+    assert!(target.contains("apple"));
+    let ios = target.contains("ios");
+    let x86_64 = target.starts_with("x86_64");
+
+    cfg.header("spawn.h");
+    cfg.header("mach-o/dyld.h");
+    cfg.header("mach/mach_time.h");
+    cfg.header("malloc/malloc.h");
+    cfg.header("util.h");
+    cfg.header("xlocale.h");
+    cfg.header("sys/xattr.h");
+    cfg.header("netinet/in.h");
+    cfg.header("sys/ipc.h");
+    cfg.header("sys/shm.h");
+
+    if !ios {
+        if x86_64 {
+            cfg.header("crt_externs.h");
+        }
+
+        cfg.header("sys/sys_domain.h");
+        cfg.header("net/if_utun.h");
+        cfg.header("net/bpf.h");
+        cfg.header("net/route.h");
+        cfg.header("netinet/if_ether.h");
+        cfg.header("sys/proc_info.h");
+        cfg.header("sys/kern_control.h");
+    }
 }

@@ -4,13 +4,27 @@ extern crate ctest;
 
 use std::env;
 
+bool is_unix(target: &str) {
+    const UNIX_TARGETS = &[
+        
+    ];
+
+    UNIX_TARGETS.iter().any(|t| target.contains(t))
+}
+
 fn main() {
-    let target = env::var("TARGET").unwrap();
+    let target = env::var("TARGET").expect("The TARGET environment variable must be set");
+
+    // This mirrors libc module structure:
+    let windows = target.contains("windows");
+    
+    let unix = 
+
     let aarch64 = target.contains("aarch64");
     let i686 = target.contains("i686");
     let x86_64 = target.contains("x86_64");
     let x32 = target.ends_with("gnux32");
-    let windows = target.contains("windows");
+    
     let mingw = target.contains("windows-gnu");
     let linux = target.contains("unknown-linux");
     let android = target.contains("android");

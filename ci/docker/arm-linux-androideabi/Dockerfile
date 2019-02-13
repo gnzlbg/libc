@@ -29,11 +29,7 @@ RUN dpkg --add-architecture i386 && \
 RUN . /android/android-sdk.sh && \
     download_and_create_avd 4333796 armeabi-v7a 18
 
-ENV PATH=$PATH:/android/sdk/emulator
-ENV PATH=$PATH:/android/sdk/tools
-ENV PATH=$PATH:/android/sdk/platform-tools
-
-ENV PATH=$PATH:/rust/bin \
+ENV PATH=$PATH:/rust/bin:/android/ndk-arm/bin:/android/sdk/emulator:/android/sdk/tools:/android/sdk/platform-tools \
     CARGO_TARGET_ARM_LINUX_ANDROIDEABI_LINKER=arm-linux-androideabi-gcc \
     CARGO_TARGET_ARM_LINUX_ANDROIDEABI_RUNNER=/tmp/runtest \
     HOME=/tmp

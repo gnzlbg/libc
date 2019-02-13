@@ -1,4 +1,5 @@
 FROM ubuntu:16.04
+# FIXME: 19.04
 
 WORKDIR /android/
 COPY android* /android/
@@ -12,6 +13,7 @@ RUN . /android/android-ndk.sh && \
 # when installing the Android SDK (see PR #45193). This is unfortunate, but
 # every search result suggested either disabling HTTPS or replacing JDK 9 by
 # JDK 8 as the solution (e.g. https://stackoverflow.com/q/41421340). :|
+# FIXME: Use OpenJDK 11 ?
 RUN dpkg --add-architecture i386 && \
     apt-get update && \
     apt-get install -y --no-install-recommends \

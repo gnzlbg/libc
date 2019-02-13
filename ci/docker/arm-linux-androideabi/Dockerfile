@@ -38,4 +38,5 @@ ENV PATH=$PATH:/rust/bin \
     CARGO_TARGET_ARM_LINUX_ANDROIDEABI_RUNNER=/tmp/runtest \
     HOME=/tmp
 
+ADD runtest-android.rs /tmp/runtest.rs
 ENTRYPOINT ["/android/android-start-emulator.sh"]

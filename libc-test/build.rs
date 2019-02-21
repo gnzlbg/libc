@@ -38,7 +38,7 @@ fn do_ctest() {
     let redox = target.contains("redox");
     let bsdlike = freebsd || apple || netbsd || openbsd || dragonfly;
     let mut cfg = ctest::TestGenerator::new();
-    cfg.verbose_skip();
+    cfg.verbose_skip(true);
 
     // Pull in extra goodies
     if linux || android || emscripten {
